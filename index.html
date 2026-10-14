@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LVHS Online Enrollment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/hero.css" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true">
+      <i class="f f1"></i><i class="f f2"></i><i class="f f3"></i
+      ><i class="f f4"></i><i class="f f5"></i><i class="f f6"></i>
+    </div>
+    <header class="nav">
+      <a class="brand" href="index.html"
+        ><b>LVHS</b><span>Online Enrollment</span></a
+      >
+      <nav>
+        <a href="index.html">Home</a><a href="map.php">Map</a
+        ><a href="#about">About</a><a href="#portals">Portals</a
+        ><a href="#contact">Contact</a>
+        <a href="registrar_login.php">Registrar</a
+        ><a class="pill" href="login.php" data-auth>Student sign in</a>
+      </nav>
+    </header>
+    <main>
+      <div class="toast" id="sentToast" role="status" hidden></div>
+
+      <div class="hero">
+        <div>
+          <h1 class="wlc" aria-label="Welcome to LVHS">
+          
+          </h1>
+          <div class="wlc-type" aria-hidden="true">
+            <span class="star">&#10022;</span><span id="wlcTyped"></span
+            ><i class="wlc-caret"></i>
+          </div>
+          <p>
+            Submit your requirements, track your application, get your temporary
+            ID and find your way around campus, all in one place.
+          </p>
+          <div class="row">
+            <a class="btn" href="register.php">Student sign up</a
+            ><a class="btn ghost" href="#about">Learn more</a>
+          </div>
+        </div>
+        <div class="tilt">
+          <div class="hero-card">
+            <h3>Enroll online</h3>
+            <p class="card-note"></p>
+            <div class="steps">
+              <span>1</span><span>2</span><span>3</span><span>4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section id="about">
+        <h2>Welcome to LVHS Online Enrollment</h2>
+        <p class="lead">
+          Students finish enrollment digitally. The registrar gets one place to
+          review pending enrollees and the requirements they passed.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <i class="tag"></i>
+            <h3>Easy enrollment</h3>
+            <p>Complete one form, step by step.</p>
+          </div>
+          <div class="card">
+            <i class="tag"></i>
+            <h3>Temporary ID</h3>
+            <p>
+              Your details are filled in automatically. Add your photo and save
+              your ID as a picture.
+            </p>
+          </div>
+          <div class="card">
+            <i class="tag"></i>
+            <h3>Campus map</h3>
+            <p>
+              Pick a number and the map zooms right to that building or room.
+            </p>
+            <a href="map.php">Open the map</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="portals">
+        <h2>Two separate portals</h2>
+        <p class="lead">
+          Students and the registrar each have their own sign in and sign up.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Student portal</h3>
+            <p>
+              Account, enrollment form, requirements, temporary ID and status.
+            </p>
+            <div class="row">
+              <a class="btn small" href="login.php">Sign in</a
+              ><a class="btn small ghost" href="register.php">Sign up</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Registrar portal</h3>
+            <p>
+              Review pending enrollees, see every requirement they passed, and
+              update statuses.
+            </p>
+            <div class="row">
+              <a class="btn small" href="registrar_login.php">Sign in</a
+              ><a class="btn small ghost" href="registrar_register.php"
+                >Sign up</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <h2>Contact LVHS</h2>
+        <br />
+        <form class="panel" method="post" action="contact.php" data-busy>
+          <label for="name">Name</label><input id="name" name="name" required />
+          <label for="email">Email</label
+          ><input id="email" name="email" type="email" required />
+          <label for="message">Message</label
+          ><textarea id="message" name="message" required></textarea><br />
+          <button class="btn" type="submit">Send message</button>
+        </form>
+      </section>
+    </main>
+    <footer class="foot">
+      <b>LVHS Online Enrollment</b
+      ><span
+        >Enrollment made simpler for students, parents, and the registrar.</span
+      ><a href="ending.html">Finish &amp; say goodbye</a
+      ><small>&copy; 2026 LVHS</small>
+    </footer>
+    <script src="assets/app.js"></script>
+    <script>
+      /* hero headline: mouse spotlight + typewriter */
+      (function () {
+        var h = document.querySelector(".wlc");
+        var out = document.getElementById("wlcTyped");
+        if (!h || !out) return;
+
+        h.parentElement.addEventListener("pointermove", function (e) {
+          var r = h.getBoundingClientRect();
+          h.style.setProperty("--mx", e.clientX - r.left + "px");
+          h.style.setProperty("--my", e.clientY - r.top + "px");
+        });
+
+        var words = [
+          "Enroll online.",
+          "Track your status.",
+          "Get your temporary ID.",
+          "Find any building.",
+        ];
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          out.textContent = words[0];
+          return;
+        }
+        var w = 0,
+          c = 0,
+          del = false;
+        (function tick() {
+          var word = words[w];
+          out.textContent = word.slice(0, c);
+          var wait = del ? 35 : 75;
+          if (!del && c === word.length) {
+            del = true;
+            wait = 1500;
+          } else if (del && c === 0) {
+            del = false;
+            w = (w + 1) % words.length;
+            wait = 350;
+          } else c += del ? -1 : 1;
+          setTimeout(tick, wait);
+        })();
+      })();
+    </script>
+  </body>
+</html>
