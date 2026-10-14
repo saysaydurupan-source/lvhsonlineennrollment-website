@@ -1,10 +1,21 @@
 <?php
 ob_start();
 session_start();
-$pdo = new PDO('mysql:host=localhost;dbname=lvhs_enrollment;charset=utf8mb4', 'root', '', [
-  PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-]);
+
+$host = 'db';
+$dbname = 'lvhs_enrollment';
+$username = 'lvhs_app';
+$password = getenv('DB_PASSWORD');
+
+$pdo = new PDO(
+    "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
+    $username,
+    $password,
+    [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]
+);
 
 // Registrars must type this access code on the registrar sign-up page. CHANGE IT before going live.
 const REGISTRAR_CODE = 'LVHS-REGISTRAR-2026';
