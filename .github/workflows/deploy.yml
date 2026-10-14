@@ -1,0 +1,65 @@
+
+name: Deploy LVHS Enrollment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Validate PHP and Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql
+          coverage: none
+
+      - name: Check PHP syntax
+        run: |
+          find . -type f -name '*.php' \
+            -not -path './.git/*' \
+            -print0 | xargs -0 -n1 php -l
+
+      - name: Validate Docker Compose
+        env:
+          DB_HOST: db
+          DB_NAME: lvhs_enrollment
+          DB_USER: lvhs_app
+          DB_PASSWORD: ci-test-password
+          DB_ROOT_PASSWORD: ci-root-password
+        run: docker compose config --quiet
+
+  deploy:
+    name: Deploy to server
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          action: up
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.TAILSCALE_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/blythe/docker/lvhsonlineennrollment-website
+            GIT_SSH_COMMAND="ssh -i /home/blythe/.ssh/github-deploy-key -o IdentitiesOnly=yes" git pull --ff-only origin main
+            docker compose up -d --build
