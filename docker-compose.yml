@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    container_name: lvhs-enrollment-web
+    ports:
+      - "2026:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - uploads_data:/var/www/html/uploads
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_NAME: ${DB_NAME:-lvhs_enrollment}
+      DB_USER: ${DB_USER:-lvhs_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+
+  db:
+    image: mysql:8.0
+    container_name: lvhs-enrollment-db
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-lvhs_enrollment}
+      MYSQL_USER: ${DB_USER:-lvhs_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads_data:
+
