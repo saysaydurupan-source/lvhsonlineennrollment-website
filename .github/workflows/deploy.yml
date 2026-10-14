@@ -61,5 +61,5 @@ jobs:
           script: |
             set -e
             cd /home/blythe/docker/lvhsonlineennrollment-website
-            git pull --ff-only origin main
+            GIT_SSH_COMMAND="ssh -i /home/blythe/.ssh/github-deploy-key -o IdentitiesOnly=yes" git pull --ff-only origin main
             docker compose up -d --build
