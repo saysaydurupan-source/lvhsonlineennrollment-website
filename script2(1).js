@@ -1,356 +1,230 @@
 function updateID() {
+  const studentName = document.getElementById("studentName").value.trim();
 
-    const studentName =
-        document.getElementById("studentName").value.trim();
+  const lrn = document.getElementById("lrn").value.trim();
 
-    const lrn =
-        document.getElementById("lrn").value.trim();
+  const yearLevel = document.getElementById("yearLevel").value;
 
-    const yearLevel =
-        document.getElementById("yearLevel").value;
+  const emergencyName = document.getElementById("emergencyName").value.trim();
 
-    const emergencyName =
-        document.getElementById("emergencyName").value.trim();
+  const emergencyAddress = document
+    .getElementById("emergencyAddress")
+    .value.trim();
 
-    const emergencyAddress =
-        document.getElementById("emergencyAddress").value.trim();
+  const emergencyContact = document
+    .getElementById("emergencyContact")
+    .value.trim();
 
-    const emergencyContact =
-        document.getElementById("emergencyContact").value.trim();
+  // FRONT
 
+  document.getElementById("displayStudentName").textContent = studentName;
 
-    // FRONT
+  document.getElementById("displayLRN").textContent = lrn;
 
-    document.getElementById("displayStudentName").textContent =
-        studentName;
+  document.getElementById("displayYearLevel").textContent = yearLevel;
 
-    document.getElementById("displayLRN").textContent =
-        lrn;
+  // BACK
 
-    document.getElementById("displayYearLevel").textContent =
-        yearLevel;
+  document.getElementById("displayEmergencyName").textContent = emergencyName;
 
+  document.getElementById("displayEmergencyAddress").textContent =
+    emergencyAddress;
 
-    // BACK
-
-    document.getElementById("displayEmergencyName").textContent =
-        emergencyName;
-
-    document.getElementById("displayEmergencyAddress").textContent =
-        emergencyAddress;
-
-    document.getElementById("displayEmergencyContact").textContent =
-        emergencyContact;
+  document.getElementById("displayEmergencyContact").textContent =
+    emergencyContact;
 }
 
 function showStudentPhoto(file) {
+  if (!file) {
+    return;
+  }
 
-    if (!file) {
-        return;
-    }
+  if (!file.type.startsWith("image/")) {
+    alert("Please select an image file.");
+    return;
+  }
 
-    if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
-        return;
-    }
+  const reader = new FileReader();
 
-    const reader = new FileReader();
+  reader.onload = function (event) {
+    const photo = document.getElementById("studentPhotoPreview");
 
-    reader.onload = function(event) {
+    const photoArea = document.querySelector(".photo-upload-area");
 
-        const photo =
-            document.getElementById("studentPhotoPreview");
+    photo.src = event.target.result;
 
-        const photoArea =
-            document.querySelector(".photo-upload-area");
+    photoArea.classList.add("has-photo");
+  };
 
-        photo.src = event.target.result;
-
-        photoArea.classList.add("has-photo");
-    };
-
-    reader.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
-const studentPhotoForm =
-    document.getElementById("studentPhotoForm");
+const studentPhotoForm = document.getElementById("studentPhotoForm");
 
 if (studentPhotoForm) {
+  studentPhotoForm.addEventListener("change", function () {
+    const file = this.files[0];
 
-    studentPhotoForm.addEventListener(
-        "change",
-        function() {
-
-            const file = this.files[0];
-
-            showStudentPhoto(file);
-        }
-    );
+    showStudentPhoto(file);
+  });
 }
 
-const studentPhoto =
-    document.getElementById("studentPhoto");
+const studentPhoto = document.getElementById("studentPhoto");
 
 if (studentPhoto) {
+  studentPhoto.addEventListener("change", function () {
+    const file = this.files[0];
 
-    studentPhoto.addEventListener(
-        "change",
-        function() {
+    if (!file) {
+      return;
+    }
 
-            const file = this.files[0];
+    showStudentPhoto(file);
 
-            if (!file) {
-                return;
-            }
+    // Copy selected file to the other input
 
-            showStudentPhoto(file);
+    const formInput = document.getElementById("studentPhotoForm");
 
+    try {
+      const dataTransfer = new DataTransfer();
 
-            // Copy selected file to the other input
+      dataTransfer.items.add(file);
 
-            const formInput =
-                document.getElementById("studentPhotoForm");
-
-            try {
-
-                const dataTransfer =
-                    new DataTransfer();
-
-                dataTransfer.items.add(file);
-
-                formInput.files =
-                    dataTransfer.files;
-
-            } catch (error) {
-
-                console.log(
-                    "File synchronization not available."
-                );
-            }
-        }
-    );
+      formInput.files = dataTransfer.files;
+    } catch (error) {
+      console.log("File synchronization not available.");
+    }
+  });
 }
 
 function waitForImages(element) {
+  const images = element.querySelectorAll("img");
 
-    const images =
-        element.querySelectorAll("img");
+  const promises = [];
 
-    const promises = [];
+  images.forEach(function (img) {
+    if (!img.complete) {
+      promises.push(
+        new Promise(function (resolve) {
+          img.onload = resolve;
 
+          img.onerror = resolve;
+        }),
+      );
+    }
+  });
 
-    images.forEach(function(img) {
-
-        if (!img.complete) {
-
-            promises.push(
-                new Promise(function(resolve) {
-
-                    img.onload = resolve;
-
-                    img.onerror = resolve;
-
-                })
-            );
-        }
-    });
-
-
-    return Promise.all(promises);
+  return Promise.all(promises);
 }
 
 async function saveIDAsPicture() {
+  // Update information first
 
-    // Update information first
+  updateID();
 
-    updateID();
+  const studentName = document.getElementById("studentName").value.trim();
 
+  // Check name
 
-    const studentName =
-        document.getElementById("studentName").value.trim();
+  if (studentName === "") {
+    alert("Please enter your student name first.");
 
+    return;
+  }
 
-    // Check name
+  const frontID = document.getElementById("frontID");
 
-    if (studentName === "") {
+  const backID = document.getElementById("backID");
 
-        alert(
-            "Please enter your student name first."
-        );
+  if (!frontID || !backID) {
+    alert("The ID layout could not be found.");
+
+    return;
+  }
+
+  try {
+    await waitForImages(frontID);
+
+    await waitForImages(backID);
+
+    const frontCanvas = await html2canvas(frontID, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const backCanvas = await html2canvas(backID, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const gap = 30;
+
+    const width = Math.max(frontCanvas.width, backCanvas.width);
+
+    const height = frontCanvas.height + gap + backCanvas.height;
+
+    const combinedCanvas = document.createElement("canvas");
+
+    combinedCanvas.width = width;
+
+    combinedCanvas.height = height;
+
+    const ctx = combinedCanvas.getContext("2d");
+
+    // White background
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillRect(0, 0, width, height);
+
+    const frontX = (width - frontCanvas.width) / 2;
+
+    ctx.drawImage(frontCanvas, frontX, 0);
+
+    const backX = (width - backCanvas.width) / 2;
+
+    ctx.drawImage(backCanvas, backX, frontCanvas.height + gap);
+
+    const cleanName = studentName.replace(/[^\w\s-]/g, "").replace(/\s+/g, "_");
+
+    const fileName = cleanName + "_Temporary_ID.png";
+
+    combinedCanvas.toBlob(function (blob) {
+      if (!blob) {
+        alert("Unable to create the ID image.");
 
         return;
-    }
+      }
 
+      const url = URL.createObjectURL(blob);
 
-    const frontID =
-        document.getElementById("frontID");
+      const link = document.createElement("a");
 
-    const backID =
-        document.getElementById("backID");
+      link.href = url;
 
+      link.download = fileName;
 
-    if (!frontID || !backID) {
+      document.body.appendChild(link);
 
-        alert(
-            "The ID layout could not be found."
-        );
+      link.click();
 
-        return;
-    }
+      document.body.removeChild(link);
 
+      // Release memory
 
-    try {
+      setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 1000);
 
-        await waitForImages(frontID);
+      alert("Temporary ID downloaded successfully!");
+    }, "image/png");
+  } catch (error) {
+    console.error("DOWNLOAD ERROR:", error);
 
-        await waitForImages(backID);
-
-        const frontCanvas =
-            await html2canvas(
-                frontID,
-                {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: "#ffffff"
-                }
-            );
-
-        const backCanvas =
-            await html2canvas(
-                backID,
-                {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: "#ffffff"
-                }
-            );
-
-        const gap = 30;
-
-        const width =
-            Math.max(
-                frontCanvas.width,
-                backCanvas.width
-            );
-
-        const height =
-            frontCanvas.height +
-            gap +
-            backCanvas.height;
-
-
-        const combinedCanvas =
-            document.createElement("canvas");
-
-        combinedCanvas.width = width;
-
-        combinedCanvas.height = height;
-
-
-        const ctx =
-            combinedCanvas.getContext("2d");
-
-
-        // White background
-
-        ctx.fillStyle = "#ffffff";
-
-        ctx.fillRect(
-            0,
-            0,
-            width,
-            height
-        );
-
-        const frontX =
-            (width - frontCanvas.width) / 2;
-
-        ctx.drawImage(
-            frontCanvas,
-            frontX,
-            0
-        );
-
-        const backX =
-            (width - backCanvas.width) / 2;
-
-        ctx.drawImage(
-            backCanvas,
-            backX,
-            frontCanvas.height + gap
-        );
-
-        const cleanName =
-            studentName
-                .replace(/[^\w\s-]/g, "")
-                .replace(/\s+/g, "_");
-
-
-        const fileName =
-            cleanName +
-            "_Temporary_ID.png";
-
-        combinedCanvas.toBlob(
-            function(blob) {
-
-                if (!blob) {
-
-                    alert(
-                        "Unable to create the ID image."
-                    );
-
-                    return;
-                }
-
-
-                const url =
-                    URL.createObjectURL(blob);
-
-
-                const link =
-                    document.createElement("a");
-
-
-                link.href = url;
-
-                link.download = fileName;
-
-
-                document.body.appendChild(link);
-
-                link.click();
-
-                document.body.removeChild(link);
-
-
-                // Release memory
-
-                setTimeout(function() {
-
-                    URL.revokeObjectURL(url);
-
-                }, 1000);
-
-
-                alert(
-                    "Temporary ID downloaded successfully!"
-                );
-
-            },
-            "image/png"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "DOWNLOAD ERROR:",
-            error
-        );
-
-
-        alert(
-            "Download failed. Please make sure front.jpg and back.jpg are in the same folder as your HTML file."
-        );
-    }
+    alert(
+      "Download failed. Please make sure front.jpg and back.jpg are in the same folder as your HTML file.",
+    );
+  }
 }

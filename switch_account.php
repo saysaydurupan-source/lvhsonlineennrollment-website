@@ -3,6 +3,8 @@
 require_once 'config.php';
 $loginPage = (($_SESSION['role'] ?? '') === 'registrar') ? 'registrar_login.php' : 'login.php';
 end_session();
-session_start(); session_regenerate_id(true);   // fresh session for the next sign-in
+session_start();
+session_regenerate_id(true);   // fresh session for the next sign-in
 flash('You are signed out. Sign in with another account.');
-header('Location: '.$loginPage); exit;
+header('Location: ' . $loginPage);
+exit;
